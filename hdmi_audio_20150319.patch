@@ -9317,10 +9317,10 @@ index 0000000..b28eb3b
 +obj-m += $(DRIVER_NAME).o
 diff --git a/sound/hdmi_audio/intel_mid_hdmi_audio.c b/sound/hdmi_audio/intel_mid_hdmi_audio.c
 new file mode 100644
-index 0000000..cfe3b06
+index 0000000..f45c334
 --- /dev/null
 +++ b/sound/hdmi_audio/intel_mid_hdmi_audio.c
-@@ -0,0 +1,2020 @@
+@@ -0,0 +1,2019 @@
 +/*
 + *   intel_mid_hdmi_audio.c - Intel HDMI audio driver for MID
 + *
@@ -10451,7 +10451,6 @@ index 0000000..cfe3b06
 +		pr_debug("HDMI status =0x%x\n", hdmi_status);
 +		if (hdmi_status & AUD_CONFIG_MASK_UNDERRUN) {
 +			i++;
-+			hdmi_status &= ~AUD_CONFIG_MASK_UNDERRUN;
 +			had_write_register(AUD_HDMI_STATUS_v2, hdmi_status);
 +		} else
 +			break;
