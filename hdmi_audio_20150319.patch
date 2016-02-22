@@ -8249,7 +8249,7 @@ index 374f964..5385e0f 100644
  #define POSTING_READ16(reg)	(void)I915_READ16_NOTRACE(reg)
  
 diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
-index c05c84f..e8ee857 100644
+index c05c84f..9ed3e35 100644
 --- a/drivers/gpu/drm/i915/i915_irq.c
 +++ b/drivers/gpu/drm/i915/i915_irq.c
 @@ -688,6 +688,29 @@ i915_disable_pipestat(struct drm_i915_private *dev_priv, enum pipe pipe,
@@ -8315,7 +8315,7 @@ index c05c84f..e8ee857 100644
  	if (pipe_stats[0] & PIPE_GMBUS_INTERRUPT_STATUS)
  		gmbus_irq_handler(dev);
  }
-@@ -2666,6 +2708,25 @@ static int valleyview_enable_vblank(struct drm_device *dev, int pipe)
+@@ -2666,6 +2708,28 @@ static int valleyview_enable_vblank(struct drm_device *dev, int pipe)
  	return 0;
  }
  
@@ -8328,11 +8328,14 @@ index c05c84f..e8ee857 100644
 +	int pipe = 1;
 +
 +	spin_lock_irqsave(&dev_priv->irq_lock, irqflags);
++	i915_enable_lpe_pipestat(dev_priv, pipe);
++
 +	imr = I915_READ(VLV_IMR);
 +	/* Audio is on Stream A */
 +	imr &= ~I915_LPE_PIPE_A_INTERRUPT;
 +	I915_WRITE(VLV_IMR, imr);
-+	i915_enable_lpe_pipestat(dev_priv, pipe);
++	I915_WRITE(VLV_IER, ~imr);
++	POSTING_READ(VLV_IER);
 +	spin_unlock_irqrestore(&dev_priv->irq_lock, irqflags);
 +
 +	return 0;
@@ -8341,7 +8344,7 @@ index c05c84f..e8ee857 100644
  static int gen8_enable_vblank(struct drm_device *dev, int pipe)
  {
  	struct drm_i915_private *dev_priv = dev->dev_private;
-@@ -2697,6 +2758,24 @@ static void i915_disable_vblank(struct drm_device *dev, int pipe)
+@@ -2697,6 +2761,27 @@ static void i915_disable_vblank(struct drm_device *dev, int pipe)
  	spin_unlock_irqrestore(&dev_priv->irq_lock, irqflags);
  }
  
@@ -8356,7 +8359,10 @@ index c05c84f..e8ee857 100644
 +	spin_lock_irqsave(&dev_priv->irq_lock, irqflags);
 +	imr = I915_READ(VLV_IMR);
 +	imr |= I915_LPE_PIPE_A_INTERRUPT;
++	I915_WRITE(VLV_IER, ~imr);
 +	I915_WRITE(VLV_IMR, imr);
++	POSTING_READ(VLV_IMR);
++
 +	i915_disable_lpe_pipestat(dev_priv, pipe);
 +	spin_unlock_irqrestore(&dev_priv->irq_lock, irqflags);
 +
